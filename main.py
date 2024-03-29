@@ -38,32 +38,34 @@ while True:
 
     # process keys
 
+    xyz_step = 0.1
+    deg_step = 1
+
     keys = pygame.key.get_pressed()
     if keys[pygame.K_LEFT]:
-        tx.translate_xyz(points, -1, 0, 0)
+        tx.translate_xyz(points, -xyz_step, 0, 0)
     if keys[pygame.K_RIGHT]:
-        tx.translate_xyz(points, 1, 0, 0)
+        tx.translate_xyz(points, xyz_step, 0, 0)
     if keys[pygame.K_UP]:
-        tx.translate_xyz(points, 0, 1, 0)
+        tx.translate_xyz(points, 0, xyz_step, 0)
     if keys[pygame.K_DOWN]:
-        tx.translate_xyz(points, 0, -1, 0)
+        tx.translate_xyz(points, 0, -xyz_step, 0)
     if keys[pygame.K_PAGEUP]:
-        tx.translate_xyz(points, 0, 0, 1)
+        tx.translate_xyz(points, 0, 0, xyz_step)
     if keys[pygame.K_PAGEDOWN]:
-        tx.translate_xyz(points, 0, 0, -1)
+        tx.translate_xyz(points, 0, 0, -xyz_step)
     if keys[pygame.K_KP_8]:
-        tx.rotate_x(points, 1)
+        tx.rotate_x(points, deg_step)
     if keys[pygame.K_KP_2]:
-        tx.rotate_x(points, -1)
+        tx.rotate_x(points, -deg_step)
     if keys[pygame.K_KP_4]:
-        tx.rotate_z(points, 1)
+        tx.rotate_z(points, deg_step)
     if keys[pygame.K_KP_6]:
-        tx.rotate_z(points, -1)
+        tx.rotate_z(points, -deg_step)
     if keys[pygame.K_KP_9]:
-        tx.rotate_y(points, 1)
+        tx.rotate_y(points, deg_step)
     if keys[pygame.K_KP_7]:
-        tx.rotate_y(points, -1)
-    
+        tx.rotate_y(points, -deg_step)
 
     proj_pts = tx.project_points(points, d)
 
