@@ -32,6 +32,26 @@ def project_points(points, d):
     return outp
 
 
+def project_points2(points, d):
+    outp = []
+    for point in points:
+        xp = point[0]
+        yp = point[1]
+        zp = point[2]
+        zp = get_d_safe(zp)
+        din = d
+
+        norm_param = din / zp
+
+        xout = xp * norm_param
+        yout = yp * norm_param
+
+        p = [xout, yout, din, 1]
+
+        outp.append(p)
+    return outp
+
+
 def gen_lines_for_box(ps):
     # top lines
     lines = [(ps[i], ps[i + 1]) for i in range(3)]
@@ -48,7 +68,11 @@ def gen_lines_for_box(ps):
 
 
 def to_pg_xyz(point):
-    return [point[0] + WIDTH / 2, HEIGHT - point[1] + HEIGHT / 2]
+    p0 = (point[0] + 1) * WIDTH / 2
+    p1 = HEIGHT - (point[1] + 1) * HEIGHT / 2
+    v = [p0, p1]
+    return v
+    # return [p0,p1]
 
 
 # see - inversed as per camera coords

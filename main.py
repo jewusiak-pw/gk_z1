@@ -9,14 +9,14 @@ screen = pygame.display.set_mode((tx.WIDTH, tx.HEIGHT))
 clock = pygame.time.Clock()
 
 # 1st box def BEGIN
-p1 = [-100, 0, 400, 1]
-p2 = [150, 0, 400, 1]
-p3 = [150, 0, 300, 1]
-p4 = [-100, 0, 300, 1]
-p5 = [-100, 800, 400, 1]
-p6 = [150, 800, 400, 1]
-p7 = [150, 800, 300, 1]
-p8 = [-100, 800, 300, 1]
+p1 = [-1, 0, 4, 1]
+p2 = [1.50, 0, 4, 1]
+p3 = [1.50, 0, 3, 1]
+p4 = [-1, 0, 3, 1]
+p5 = [-1, 8, 4, 1]
+p6 = [1.50, 8, 4, 1]
+p7 = [1.50, 8, 3, 1]
+p8 = [-1, 8, 3, 1]
 
 b1 = [p1, p2, p3, p4, p5, p6, p7, p8]
 
@@ -24,7 +24,7 @@ b1 = [p1, p2, p3, p4, p5, p6, p7, p8]
 
 points = b1
 
-d = 1500
+d = 3
 md = d * -1
 
 while True:
@@ -67,7 +67,8 @@ while True:
     if keys[pygame.K_KP_7]:
         tx.rotate_y(points, -deg_step)
 
-    proj_pts = tx.project_points(points, d)
+    proj_pts = tx.project_points2(points, d)
+
 
     # draw projected points
     i = 0
