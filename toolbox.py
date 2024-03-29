@@ -10,7 +10,19 @@ def get_d_safe(din):
 
 
 def gen_Mpp(din):
-    return np.matrix([[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 0, 0], [0, 0, 1 / get_d_safe(din), 1]])
+    return np.matrix([[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 1 / get_d_safe(din), 0]])
+
+
+def gen_translation_mx(x, y, z):
+    return np.matrix([[1, 0, 0, x],
+                      [0, 1, 0, y],
+                      [0, 0, 1, z],
+                      [0, 0, 0, 1]])
+
+
+def normalize_vect(v):
+    v3 = get_d_safe(v[3])
+    return [v[0] / v3, v[1] / v3, v[2] / v3, 1]
 
 
 def project_points(points, d):
@@ -35,9 +47,9 @@ def project_points(points, d):
 def project_points2(points, d):
     outp = []
     for point in points:
-        xp = point[0]
-        yp = point[1]
-        zp = point[2]
+        xp = point[0][0]
+        yp = point[0][1]
+        zp = point[0][2]
         zp = get_d_safe(zp)
         din = d
 
@@ -46,25 +58,29 @@ def project_points2(points, d):
         xout = xp * norm_param
         yout = yp * norm_param
 
-        p = [xout, yout, din, 1]
+        p = ([xout, yout, din, 1], point[1])
 
         outp.append(p)
     return outp
 
 
 def gen_lines_for_box(ps):
-    # top lines
-    lines = [(ps[i], ps[i + 1]) for i in range(3)]
-    lines.append((ps[0], ps[3]))
+    po = []
+    n = math.floor(len(ps) / 8)
+    for i in range(n):
+        offset = i * 8
+        # top lines
+        lines = [(ps[i + offset], ps[i + 1 + offset]) for i in range(3)]
+        lines.append((ps[0 + offset], ps[3 + offset]))
 
-    # bottom lines
-    lines += [(ps[i], ps[i + 1]) for i in range(4, 7)]
-    lines.append((ps[4], ps[7]))
+        # bottom lines
+        lines += [(ps[i + offset], ps[i + 1 + offset]) for i in range(4, 7)]
+        lines.append((ps[4 + offset], ps[7 + offset]))
 
-    # vertical lines
-    lines += [(ps[i], ps[i + 4]) for i in range(4)]
-
-    return lines
+        # vertical lines
+        lines += [(ps[i + offset], ps[i + 4 + offset]) for i in range(4)]
+        po += lines
+    return po
 
 
 def to_pg_xyz(point):
@@ -77,10 +93,9 @@ def to_pg_xyz(point):
 
 # see - inversed as per camera coords
 def translate_xyz(points, x, y, z):
+    tm = gen_translation_mx(-x, -y, -z)
     for i in range(len(points)):
-        points[i][0] -= x
-        points[i][1] -= y
-        points[i][2] -= z
+        points[i] = np.dot(tm, points[i]).tolist()[0]
 
 
 def rotate_x(points, deg):
@@ -105,3 +120,14 @@ def rotate_z(points, deg):
         [[math.cos(rad), -math.sin(rad), 0, 0], [math.sin(rad), math.cos(rad), 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]])
     for i in range(len(points)):
         points[i] = np.dot(rotM, points[i]).tolist()[0]
+
+
+def visiblity(points):
+    outp = []
+    for point in points:
+        zp = point[2]
+
+        visible = zp > 0
+
+        outp.append((point, visible))
+    return outp
