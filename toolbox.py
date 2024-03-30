@@ -1,8 +1,8 @@
 import numpy as np
 import math
 
-HEIGHT = 2000
-WIDTH = 2000
+HEIGHT = 720
+WIDTH = 1280
 
 
 def get_d_safe(din):
