@@ -115,13 +115,13 @@ while True:
         tx.rotate_x(points, deg_step)
     if keys[pygame.K_KP_2]:
         tx.rotate_x(points, -deg_step)
-    if keys[pygame.K_KP_4]:
-        tx.rotate_z(points, deg_step)
     if keys[pygame.K_KP_6]:
+        tx.rotate_z(points, deg_step)
+    if keys[pygame.K_KP_4]:
         tx.rotate_z(points, -deg_step)
-    if keys[pygame.K_KP_9]:
+    if keys[pygame.K_KP_7]:
         tx.rotate_y(points, deg_step)
-    if keys[pygame.K_KP_3]:
+    if keys[pygame.K_KP_9]:
         tx.rotate_y(points, -deg_step)
 
     proj_pts = tx.visiblity(points)
