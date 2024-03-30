@@ -84,10 +84,7 @@ def gen_lines_for_box(ps):
 
 
 def to_pg_xyz(point):
-    p0 = (point[0] + 1) * WIDTH / 2
-    p1 = HEIGHT - (point[1] + 1) * HEIGHT / 2
-    v = [p0, p1]
-    return v
+    return [point[0] + WIDTH / 2, HEIGHT - point[1] + HEIGHT / 2]
     # return [p0,p1]
 
 
