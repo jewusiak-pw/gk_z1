@@ -96,7 +96,8 @@ while True:
     # process keys
 
     xyz_step = 0.01
-    deg_step = 3
+    deg_step = 1
+    d_step = 0.05
 
     keys = pygame.key.get_pressed()
     if keys[pygame.K_LEFT]:
@@ -123,6 +124,10 @@ while True:
         tx.rotate_y(points, deg_step)
     if keys[pygame.K_KP_9]:
         tx.rotate_y(points, -deg_step)
+    if keys[pygame.K_KP_MINUS] and d > 0.1:
+        d -= d_step
+    if keys[pygame.K_KP_PLUS]:
+        d += d_step
 
     proj_pts = tx.visiblity(points)
 
