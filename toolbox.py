@@ -84,7 +84,7 @@ def gen_lines_for_box(ps):
 
 
 def to_pg_xyz(point):
-    return [point[0] + WIDTH / 2, HEIGHT/2 - point[1]]
+    return [point[0] + WIDTH / 2, HEIGHT / 2 - point[1]]
     # return [p0,p1]
 
 
@@ -128,3 +128,17 @@ def visiblity(points):
 
         outp.append((point, visible))
     return outp
+
+
+# gen box starting with bottom near left corner
+def gen_box(x, y, z, x_l, y_l, z_l):
+    p1 = [x, y, z, 1]
+    p2 = [x + x_l, y, z, 1]
+    p3 = [x + x_l, y, z + z_l, 1]
+    p4 = [x, y, z + z_l, 1]
+    p5 = [x, y + y_l, z, 1]
+    p6 = [x + x_l, y + y_l, z, 1]
+    p7 = [x + x_l, y + y_l, z + z_l, 1]
+    p8 = [x, y + y_l, z + z_l, 1]
+
+    return [p1, p2, p3, p4, p5, p6, p7, p8]
