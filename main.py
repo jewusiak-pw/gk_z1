@@ -40,7 +40,10 @@ for d1 in range(250, 1001, 250):
     points += tx.gen_box(-150, 0, d1, 50, 120, 150)
 
 d = 1000
+d_orig = 1000
 md = d * -1
+
+tx.translate_xyz(points, 0, 60, 0)
 
 points_backup = points.copy()
 
@@ -81,9 +84,9 @@ while True:
     if keys[pygame.K_s]:
         tx.rotate_x(points, -deg_step)
     # yaw
-    if keys[pygame.K_d]:
-        tx.rotate_z(points, deg_step)
     if keys[pygame.K_a]:
+        tx.rotate_z(points, deg_step)
+    if keys[pygame.K_d]:
         tx.rotate_z(points, -deg_step)
     # roll
     if keys[pygame.K_q]:
@@ -91,15 +94,15 @@ while True:
     if keys[pygame.K_e]:
         tx.rotate_y(points, -deg_step)
     # zoom
-    if keys[pygame.K_KP_MINUS] and d > 0.1:
+    if keys[pygame.K_l] and d > 0.1:
         d -= d_step
-    if keys[pygame.K_KP_PLUS]:
+    if keys[pygame.K_p]:
         d += d_step
     # manual change of position
     if keys[pygame.K_F2]:
         trans_x = tx.intTryParse(input("Translate X (+ right / left): "))
         trans_y = tx.intTryParse(input("Translate Y (+ up / down): "))
-        trans_z = tx.intTryParse(input("Translate Z (+ fwd / bckwd):" ))
+        trans_z = tx.intTryParse(input("Translate Z (+ fwd / bckwd):"))
         r_roll = tx.intTryParse(input("Roll rotation deg (+ CW): "))
         r_pitch = tx.intTryParse(input("Pitch rotation deg (+ UP): "))
         r_yaw = tx.intTryParse(input("Yaw rotation deg (+ LEFT): "))
@@ -110,6 +113,7 @@ while True:
     # reset position
     if keys[pygame.K_F5]:
         points = points_backup.copy()
+        d = d_orig
 
     proj_pts = tx.visiblity(points)
 
@@ -120,7 +124,7 @@ while True:
     for point in proj_pts:
         if point[1] == True:
             pygame.draw.circle(screen, "black", tx.to_pg_xyz(point[0])[:2], 4)
-        print(point[0][0:2], i / 2)
+        # print(point[0][0:2], i / 2)
         i += 2
 
     lines = tx.gen_lines_for_box(proj_pts)
