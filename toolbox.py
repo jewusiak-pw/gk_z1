@@ -142,3 +142,9 @@ def gen_box(x, y, z, x_l, y_l, z_l):
     p8 = [x, y + y_l, z + z_l, 1]
 
     return [p1, p2, p3, p4, p5, p6, p7, p8]
+
+def intTryParse(value) -> int:
+    try:
+        return int(value)
+    except ValueError:
+        return 0

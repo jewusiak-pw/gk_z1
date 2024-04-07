@@ -34,14 +34,15 @@ b3 = tx.gen_box(-150, 0, 500, 50, 120, 150)
 # 4th box def 
 b4 = tx.gen_box(100, 0, 500, 50, 120, 150)
 
-points =[]
+points = []
 for d1 in range(250, 1001, 250):
-    points+=tx.gen_box(100, 0, d1, 50, 120, 150)
-    points+=tx.gen_box(-150, 0, d1, 50, 120, 150)
-    
+    points += tx.gen_box(100, 0, d1, 50, 120, 150)
+    points += tx.gen_box(-150, 0, d1, 50, 120, 150)
 
 d = 1000
 md = d * -1
+
+points_backup = points.copy()
 
 while True:
     # Process player inputs.
@@ -55,38 +56,60 @@ while True:
     # process keys
 
     xyz_step = 1
-    deg_step = 3
+    deg_step = 2
     d_step = 5
 
     keys = pygame.key.get_pressed()
+    # right/left
     if keys[pygame.K_LEFT]:
         tx.translate_xyz(points, -xyz_step, 0, 0)
     if keys[pygame.K_RIGHT]:
         tx.translate_xyz(points, xyz_step, 0, 0)
+    # up/down
     if keys[pygame.K_UP]:
         tx.translate_xyz(points, 0, xyz_step, 0)
     if keys[pygame.K_DOWN]:
         tx.translate_xyz(points, 0, -xyz_step, 0)
+    # fwd/bckwd
     if keys[pygame.K_PAGEUP]:
         tx.translate_xyz(points, 0, 0, xyz_step)
     if keys[pygame.K_PAGEDOWN]:
         tx.translate_xyz(points, 0, 0, -xyz_step)
-    if keys[pygame.K_KP_8]:
+    # pitch
+    if keys[pygame.K_w]:
         tx.rotate_x(points, deg_step)
-    if keys[pygame.K_KP_2]:
+    if keys[pygame.K_s]:
         tx.rotate_x(points, -deg_step)
-    if keys[pygame.K_KP_6]:
+    # yaw
+    if keys[pygame.K_d]:
         tx.rotate_z(points, deg_step)
-    if keys[pygame.K_KP_4]:
+    if keys[pygame.K_a]:
         tx.rotate_z(points, -deg_step)
-    if keys[pygame.K_KP_7]:
+    # roll
+    if keys[pygame.K_q]:
         tx.rotate_y(points, deg_step)
-    if keys[pygame.K_KP_9]:
+    if keys[pygame.K_e]:
         tx.rotate_y(points, -deg_step)
+    # zoom
     if keys[pygame.K_KP_MINUS] and d > 0.1:
         d -= d_step
     if keys[pygame.K_KP_PLUS]:
         d += d_step
+    # manual change of position
+    if keys[pygame.K_F2]:
+        trans_x = tx.intTryParse(input("Translate X (+ right / left): "))
+        trans_y = tx.intTryParse(input("Translate Y (+ up / down): "))
+        trans_z = tx.intTryParse(input("Translate Z (+ fwd / bckwd):" ))
+        r_roll = tx.intTryParse(input("Roll rotation deg (+ CW): "))
+        r_pitch = tx.intTryParse(input("Pitch rotation deg (+ UP): "))
+        r_yaw = tx.intTryParse(input("Yaw rotation deg (+ LEFT): "))
+        tx.translate_xyz(points, trans_x, trans_y, trans_z)
+        tx.rotate_x(points, r_pitch)
+        tx.rotate_y(points, r_yaw)
+        tx.rotate_z(points, r_roll)
+    # reset position
+    if keys[pygame.K_F5]:
+        points = points_backup.copy()
 
     proj_pts = tx.visiblity(points)
 
