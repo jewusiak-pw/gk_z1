@@ -150,13 +150,38 @@ def intTryParse(value) -> int:
         return 0
 
 
+def cd(xyz1, xyz2):
+    [x, y, z] = xyz1
+    [x2, y2, z2] = xyz2
+    return math.sqrt((x2 - x) ** 2 + (y2 - y) ** 2 + (z2 - z) ** 2)
+
+
+def gen_mid_point(xyz1, xyz2):
+    [x1, y1, z1] = xyz1
+    [x2, y2, z2] = xyz2
+    x = x1 + x2 / 2
+    y = y1 + y2 / 2
+    z = z1 + z2 / 2
+    return [x, y, z]
+
+
 def calc_dist(polygon):
-    [x2, y2, z2] = cam_xyz = [0, 0, 0]
+    cam_xyz = [0, 0, 0]
+
+    poly_pts = [point['point'][:3] for point in polygon]
+
     x = sum([point['point'][0] for point in polygon]) / len(polygon)
     y = sum([point['point'][1] for point in polygon]) / len(polygon)
     z = sum([point['point'][2] for point in polygon]) / len(polygon)
-    dist = math.sqrt((x2-x)**2 + (y2-y)**2 + (z2-z)**2)
-    return dist
+
+    points = [[x, y, z]]
+    points += poly_pts
+    points +=[gen_mid_point(poly_pts[i], poly_pts[i+1]) for i in range(len(poly_pts)-1)]
+    points.append(gen_mid_point(poly_pts[0], poly_pts[-1]))
+
+    
+
+    return min([cd(cam_xyz, point) for point in points])
 
 
 def deep_copy(polygons):
