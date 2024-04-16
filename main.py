@@ -123,10 +123,17 @@ while True:
         walls_enabled = not walls_enabled
         time.sleep(0.1)
 
-    
+
 
     proj_polygons = tx.visiblity(polygons)
+
+    polygons_ = [p['point'][:3] for p in proj_polygons[0]]
+    eqp = tx.equation_plane(*(polygons_[:3]))
     
+    tx.calc_dist(proj_polygons[0])
+    poj_pt = tx.project_point_onto_plane((150,-400, 300), polygons_)
+
+
     proj_polygons.sort(key=tx.calc_dist, reverse=True)
 
     proj_polygons = tx.project_points2(proj_polygons, d)
@@ -141,8 +148,9 @@ while True:
     for polygon in proj_polygons:
         if sum([(1 if point['visibility'] == True else 0) for point in polygon]) == 4:
             if walls_enabled:
-                pygame.draw.polygon(screen, "white", [tx.to_pg_xyz(point['point'][:2]) for point in polygon], 0) 
-            pygame.draw.polygon(screen, "black", [tx.to_pg_xyz(point['point'][:2]) for point in polygon], 2) 
+                pygame.draw.polygon(screen, "white", [tx.to_pg_xyz(point['point'][:2]) for point in polygon], 0)
+            pygame.draw.polygon(screen, "black", [tx.to_pg_xyz(point['point'][:2]) for point in polygon], 2)
+
 
     pygame.display.update()  # Refresh on-screen display
     clock.tick(60)  # wait until next frame (at 60 FPS)

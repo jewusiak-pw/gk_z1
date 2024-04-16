@@ -1,6 +1,7 @@
 import numpy as np
 import math
 
+
 HEIGHT = 720
 WIDTH = 1280
 
@@ -150,14 +151,63 @@ def intTryParse(value) -> int:
         return 0
 
 
+def is_in_polygon(proj_cam, poly_pts):
+    minx = min([pt[0] for pt in poly_pts])
+    maxx = max([pt[0] for pt in poly_pts])
+    miny = min([pt[1] for pt in poly_pts])
+    maxy = max([pt[1] for pt in poly_pts])
+    minz = min([pt[2] for pt in poly_pts])
+    maxz = max([pt[2] for pt in poly_pts])
+    
+    return isbtw(minx, proj_cam[0], maxx) and isbtw(miny, proj_cam[1], maxy) and isbtw(minz, proj_cam[2], maxz)
+
+
+def isbtw(a,b,c):
+    return a <= b and b <= c;
+
 def calc_dist(polygon):
-    [x2, y2, z2] = cam_xyz = [0, 0, 0]
-    x = sum([point['point'][0] for point in polygon]) / len(polygon)
-    y = sum([point['point'][1] for point in polygon]) / len(polygon)
-    z = sum([point['point'][2] for point in polygon]) / len(polygon)
-    dist = math.sqrt((x2-x)**2 + (y2-y)**2 + (z2-z)**2)
-    return dist
+    cam_xyz = [0, 0, 0]
+    poly_pts = [point['point'][:3] for point in polygon]
+
+    proj_cam = project_point_onto_plane(cam_xyz, poly_pts)
+
+    if is_in_polygon(proj_cam, poly_pts):
+        pass
+        # use perpendicular
+    else:
+        pass
+        # use dist to poly
+
+    return None
 
 
 def deep_copy(polygons):
     return [polygon.copy() for polygon in polygons]
+
+
+def equation_plane(p1, p2, p3):
+    [x1, y1, z1] = p1
+    [x2, y2, z2] = p2
+    [x3, y3, z3] = p3
+    a1 = x2 - x1
+    b1 = y2 - y1
+    c1 = z2 - z1
+    a2 = x3 - x1
+    b2 = y3 - y1
+    c2 = z3 - z1
+    a = b1 * c2 - b2 * c1
+    b = a2 * c1 - a1 * c2
+    c = a1 * b2 - b1 * a2
+    d = (- a * x1 - b * y1 - c * z1)
+    return (a, b, c, d)
+
+
+def project_point_onto_plane(point, plane_pts):
+    v1 = (plane_pts[1][0] - plane_pts[0][0], plane_pts[1][1] - plane_pts[0][1], plane_pts[1][2] - plane_pts[0][2])
+    v2 = (plane_pts[2][0] - plane_pts[0][0], plane_pts[2][1] - plane_pts[0][1], plane_pts[2][2] - plane_pts[0][2])
+    [a,b,c] = np.cross(v1,v2).tolist()
+    [d,e,f] = plane_pts[0][:3]
+    [x,y,z] = point
+    t = (a*d-a*x+b*e-b*y+c*f-c*z)/(a**2 + b**2 + c**2)
+    return [x+t*a, y+t*b, z+t*c]
+    
