@@ -148,3 +148,16 @@ def intTryParse(value) -> int:
         return int(value)
     except ValueError:
         return 0
+
+
+def calc_dist(polygon):
+    [x2, y2, z2] = cam_xyz = [0, 0, 0]
+    x = sum([point['point'][0] for point in polygon]) / len(polygon)
+    y = sum([point['point'][1] for point in polygon]) / len(polygon)
+    z = sum([point['point'][2] for point in polygon]) / len(polygon)
+    dist = math.sqrt((x2-x)**2 + (y2-y)**2 + (z2-z)**2)
+    return dist
+
+
+def deep_copy(polygons):
+    return [polygon.copy() for polygon in polygons]

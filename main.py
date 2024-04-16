@@ -1,3 +1,5 @@
+import time
+
 import numpy as np
 import pygame
 import toolbox as tx
@@ -45,7 +47,9 @@ md = d * -1
 
 tx.translate_xyz(polygons, 0, 60, 0)
 
-polygons_backup = polygons.copy()
+polygons_backup = tx.deep_copy(polygons)
+
+walls_enabled = True
 
 while True:
     # Process player inputs.
@@ -112,27 +116,33 @@ while True:
         tx.rotate_z(polygons, r_roll)
     # reset position
     if keys[pygame.K_F5]:
-        polygons = polygons_backup.copy()
+        polygons = tx.deep_copy(polygons_backup)
         d = d_orig
+    # toggle walls
+    if keys[pygame.K_F6]:
+        walls_enabled = not walls_enabled
+        time.sleep(0.1)
+
+    
 
     proj_polygons = tx.visiblity(polygons)
+    
+    proj_polygons.sort(key=tx.calc_dist, reverse=True)
 
     proj_polygons = tx.project_points2(proj_polygons, d)
 
     # draw projected points
-    # i = 0
     for polygon in proj_polygons:
         for point in polygon:
             if point['visibility'] == True:
                 pygame.draw.circle(screen, "black", tx.to_pg_xyz(point['point'])[:2], 4)
-            # print(point[0][0:2], i / 2)
-            # i += 2
 
-    # lines = tx.gen_lines_for_box(proj_polygons)
-
+    # draw polygons
     for polygon in proj_polygons:
         if sum([(1 if point['visibility'] == True else 0) for point in polygon]) == 4:
-            pygame.draw.polygon(screen, (255, 0, 0), [tx.to_pg_xyz(point['point'][:2]) for point in polygon], 2) #2)
+            if walls_enabled:
+                pygame.draw.polygon(screen, "white", [tx.to_pg_xyz(point['point'][:2]) for point in polygon], 0) 
+            pygame.draw.polygon(screen, "black", [tx.to_pg_xyz(point['point'][:2]) for point in polygon], 2) 
 
     pygame.display.update()  # Refresh on-screen display
     clock.tick(60)  # wait until next frame (at 60 FPS)
