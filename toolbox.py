@@ -25,42 +25,39 @@ def normalize_vect(v):
     return [v[0] / v3, v[1] / v3, v[2] / v3, 1]
 
 
-def project_points(points, d):
+def visiblity(polygons):
     outp = []
-    for point in points:
-        xp = point[0]
-        yp = point[1]
-        zp = point[2]
-        din = get_d_safe(d)
+    for polygon in polygons:
+        outp2 = []
+        for j in range(len(polygon)):
+            zp = polygon[j][2]
 
-        norm_param = din / (zp + din)
+            visible = zp > 0
 
-        xout = xp * norm_param
-        yout = yp * norm_param
-
-        p = [xout, yout, 0, 1]
-
-        outp.append(p)
+            outp2.append({"point": polygon[j], "visibility": visible})
+        outp.append(outp2)
     return outp
 
 
-def project_points2(points, d):
+def project_points2(polygons, d):
     outp = []
-    for point in points:
-        xp = point[0][0]
-        yp = point[0][1]
-        zp = point[0][2]
-        zp = get_d_safe(zp)
-        din = d
+    for polygon in polygons:
+        outp2 = []
+        for j in range(len(polygon)):
+            xp = polygon[j]['point'][0]
+            yp = polygon[j]['point'][1]
+            zp = polygon[j]['point'][2]
+            zp = get_d_safe(zp)
+            din = d
 
-        norm_param = din / zp
+            norm_param = din / zp
 
-        xout = xp * norm_param
-        yout = yp * norm_param
+            xout = xp * norm_param
+            yout = yp * norm_param
 
-        p = ([xout, yout, din, 1], point[1])
-
-        outp.append(p)
+            p = {'point': [xout, yout, din, 1], 'visibility': polygon[j]['visibility']}
+            outp2.append(p)
+        outp.append(outp2)
     return outp
 
 
@@ -89,45 +86,40 @@ def to_pg_xyz(point):
 
 
 # see - inversed as per camera coords
-def translate_xyz(points, x, y, z):
+
+
+def translate_xyz(polygons, x, y, z):
     tm = gen_translation_mx(-x, -y, -z)
-    for i in range(len(points)):
-        points[i] = np.dot(tm, points[i]).tolist()[0]
+    for i in range(len(polygons)):
+        for j in range(len(polygons[i])):
+            polygons[i][j] = np.dot(tm, polygons[i][j]).tolist()[0]
 
 
-def rotate_x(points, deg):
+def rotate_x(polygons, deg):
     rad = 2 * math.pi * deg / 360
     rotM = np.matrix(
         [[1, 0, 0, 0], [0, math.cos(rad), -math.sin(rad), 0], [0, math.sin(rad), math.cos(rad), 0], [0, 0, 0, 1]])
-    for i in range(len(points)):
-        points[i] = np.dot(rotM, points[i]).tolist()[0]
+    for i in range(len(polygons)):
+        for j in range(len(polygons[i])):
+            polygons[i][j] = np.dot(rotM, polygons[i][j]).tolist()[0]
 
 
-def rotate_y(points, deg):
+def rotate_y(polygons, deg):
     rad = 2 * math.pi * deg / 360
     rotM = np.matrix(
         [[math.cos(rad), 0, math.sin(rad), 0], [0, 1, 0, 0], [-math.sin(rad), 0, math.cos(rad), 0], [0, 0, 0, 1]])
-    for i in range(len(points)):
-        points[i] = np.dot(rotM, points[i]).tolist()[0]
+    for i in range(len(polygons)):
+        for j in range(len(polygons[i])):
+            polygons[i][j] = np.dot(rotM, polygons[i][j]).tolist()[0]
 
 
-def rotate_z(points, deg):
+def rotate_z(polygons, deg):
     rad = 2 * math.pi * deg / 360
     rotM = np.matrix(
         [[math.cos(rad), -math.sin(rad), 0, 0], [math.sin(rad), math.cos(rad), 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]])
-    for i in range(len(points)):
-        points[i] = np.dot(rotM, points[i]).tolist()[0]
-
-
-def visiblity(points):
-    outp = []
-    for point in points:
-        zp = point[2]
-
-        visible = zp > 0
-
-        outp.append((point, visible))
-    return outp
+    for i in range(len(polygons)):
+        for j in range(len(polygons[i])):
+            polygons[i][j] = np.dot(rotM, polygons[i][j]).tolist()[0]
 
 
 # gen box starting with bottom near left corner
@@ -141,7 +133,15 @@ def gen_box(x, y, z, x_l, y_l, z_l):
     p7 = [x + x_l, y + y_l, z + z_l, 1]
     p8 = [x, y + y_l, z + z_l, 1]
 
-    return [p1, p2, p3, p4, p5, p6, p7, p8]
+    s_btm = [p1, p2, p3, p4]
+    s_top = [p5, p6, p7, p8]
+    s_fwd = [p4, p3, p7, p8]
+    s_bck = [p1, p2, p6, p5]
+    s_left = [p1, p4, p8, p5]
+    s_right = [p2, p3, p7, p6]
+
+    return [s_btm, s_top, s_fwd, s_bck, s_left, s_right]
+
 
 def intTryParse(value) -> int:
     try:
