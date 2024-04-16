@@ -1,3 +1,5 @@
+import random
+
 import numpy as np
 import math
 
@@ -165,6 +167,20 @@ def gen_mid_point(xyz1, xyz2):
     return [x, y, z]
 
 
+def gen_random(n, poly_pts):
+    minx = min([pt[0] for pt in poly_pts])
+    maxx = max([pt[0] for pt in poly_pts])
+    miny = min([pt[1] for pt in poly_pts])
+    maxy = max([pt[1] for pt in poly_pts])
+    minz = min([pt[2] for pt in poly_pts])
+    maxz = max([pt[2] for pt in poly_pts])
+
+    out = []
+    for i in range(n):
+        out.append([random.randint(minx, maxx), random.randint(miny, maxy), random.randint(minz, maxz)])
+    return out
+
+
 def calc_dist(polygon):
     cam_xyz = [0, 0, 0]
 
@@ -176,10 +192,9 @@ def calc_dist(polygon):
 
     points = [[x, y, z]]
     points += poly_pts
-    points +=[gen_mid_point(poly_pts[i], poly_pts[i+1]) for i in range(len(poly_pts)-1)]
+    points += [gen_mid_point(poly_pts[i], poly_pts[i + 1]) for i in range(len(poly_pts) - 1)]
     points.append(gen_mid_point(poly_pts[0], poly_pts[-1]))
-
-    
+    points += gen_random(50, poly_pts)
 
     return min([cd(cam_xyz, point) for point in points])
 
