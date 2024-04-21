@@ -55,6 +55,7 @@ act_pos = [0, 60, 0, 0, 0, 0]
 pos_backup = [0, 60, 0, 0, 0, 0]
 
 proj = True
+altern_enabled = True
 
 while True:
     # Process player inputs.
@@ -172,10 +173,15 @@ while True:
         walls_enabled = not walls_enabled
         proj = True
         time.sleep(0.1)
+    # toggle alternative sort
+    if keys[pygame.K_F7]:
+        altern_enabled = not altern_enabled
+        proj = True
+        time.sleep(0.1)
 
     if proj or True:
         proj_polygons = tx.visiblity(polygons)
-        proj_polygons.sort(key=lambda p: tx.calc_dist(p, act_pos[:3]), reverse=True)
+        proj_polygons.sort(key=lambda p: tx.calc_dist(p, act_pos[:3], altern_enabled), reverse=True)
 
         tx.translate_xyz(proj_polygons, act_pos[0], act_pos[1], act_pos[2])
         tx.rotate_z(proj_polygons, act_pos[3])
@@ -199,5 +205,5 @@ while True:
 
         pygame.display.update()  # Refresh on-screen display
         proj = False
-        polygons = tx.deep_copy(polygons_backup)
-    clock.tick(240)  # wait until next frame (at 60 FPS)
+        # polygons = tx.deep_copy(polygons_backup)
+    clock.tick(60)  # wait until next frame (at 60 FPS)

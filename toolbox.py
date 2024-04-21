@@ -181,7 +181,7 @@ def gen_random(n, poly_pts):
     return out
 
 
-def calc_dist(polygon, cam_xyz):
+def calc_dist(polygon, cam_xyz, altern_enabled):
     # cam_xyz = [0, 0, 0]
 
     poly_pts = [point['point'][:3] for point in polygon]
@@ -191,10 +191,11 @@ def calc_dist(polygon, cam_xyz):
     z = sum([point['point'][2] for point in polygon]) / len(polygon)
 
     points = [[x, y, z]]
-    points += poly_pts
-    points += [gen_mid_point(poly_pts[i], poly_pts[i + 1]) for i in range(len(poly_pts) - 1)]
-    points.append(gen_mid_point(poly_pts[0], poly_pts[-1]))
-    points += gen_random(1000, poly_pts)
+    if altern_enabled:
+        points += poly_pts
+        points += [gen_mid_point(poly_pts[i], poly_pts[i + 1]) for i in range(len(poly_pts) - 1)]
+        points.append(gen_mid_point(poly_pts[0], poly_pts[-1]))
+        points += gen_random(1000, poly_pts)
 
     return min([cd(cam_xyz, point) for point in points])
 
