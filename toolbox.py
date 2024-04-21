@@ -219,10 +219,18 @@ def poly_border_point_dist(cam_xyz, poly_pts):
 def dist_p2p(p1, p2):
     return math.sqrt(sum([(p1[i] - p2[i]) ** 2 for i in range(3)]))
 
+def avg(l):
+    return sum(l)/len(l)
 
 def calc_dist(polygon):
     cam_xyz = [0, 0, 0]
     poly_pts = [point['point'][:3] for point in polygon]
+
+    avgx = avg([p[0] for p in poly_pts])
+    avgy = avg([p[1] for p in poly_pts])
+    avgz = avg([p[2] for p in poly_pts])
+
+    return dist_p2p(cam_xyz, [avgx, avgy, avgz])
 
     proj_cam = project_point_onto_plane(cam_xyz, poly_pts)
 
