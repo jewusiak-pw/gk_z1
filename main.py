@@ -102,29 +102,29 @@ while True:
         proj = True
     # pitch
     if keys[pygame.K_w]:
-        # tx.rotate_x(polygons, deg_step)
+        tx.rotate_x(polygons, deg_step)
         act_pos[4] = act_pos[4] + deg_step
         proj = True
     if keys[pygame.K_s]:
-        # tx.rotate_x(polygons, -deg_step)
+        tx.rotate_x(polygons, -deg_step)
         act_pos[4] = act_pos[4] - deg_step
         proj = True
     # yaw
     if keys[pygame.K_a]:
-        # tx.rotate_z(polygons, deg_step)
+        tx.rotate_z(polygons, deg_step)
         act_pos[5] = act_pos[5] + deg_step
         proj = True
     if keys[pygame.K_d]:
-        # tx.rotate_z(polygons, -deg_step)
+        tx.rotate_z(polygons, -deg_step)
         act_pos[5] = act_pos[5] - deg_step
         proj = True
     # roll
     if keys[pygame.K_q]:
-        # tx.rotate_y(polygons, deg_step)
+        tx.rotate_y(polygons, deg_step)
         act_pos[3] = act_pos[3] + deg_step
         proj = True
     if keys[pygame.K_e]:
-        # tx.rotate_y(polygons, -deg_step)
+        tx.rotate_y(polygons, -deg_step)
         act_pos[3] = act_pos[3] - deg_step
         proj = True
     # zoom
@@ -157,15 +157,16 @@ while True:
         r_pitch = tx.intTryParse(input("Pitch rotation deg (+ UP): "))
         r_yaw = tx.intTryParse(input("Yaw rotation deg (+ LEFT): "))
         # tx.translate_xyz(polygons, trans_x, trans_y, trans_z)
-        # tx.rotate_x(polygons, r_pitch)
-        # tx.rotate_y(polygons, r_yaw)
-        # tx.rotate_z(polygons, r_roll)
+        tx.rotate_x(polygons, r_pitch)
+        tx.rotate_y(polygons, r_yaw)
+        tx.rotate_z(polygons, r_roll)
         txs = [trans_x, trans_y, trans_z, r_roll, r_pitch, r_yaw]
         act_pos = [(act_pos[i] + txs[i]) for i in range(len(act_pos))]
         proj = True
     # reset position
     if keys[pygame.K_F5]:
         act_pos = pos_backup.copy()
+        polygons = tx.deep_copy(polygons_backup)
         d = d_orig
         proj = True
     # toggle walls
@@ -182,12 +183,14 @@ while True:
     if proj or True:
         proj_polygons = tx.visiblity(polygons)
         if walls_enabled:
-            proj_polygons.sort(key=lambda p: tx.calc_dist(p, act_pos[:3], altern_enabled), reverse=True)
+            sorted_p = list(zip(proj_polygons, [ [{"point" : pbb, 'visibility': True} for pbb in pb] for pb in polygons_backup]))
+            sorted_p.sort(key=lambda p: tx.calc_dist(p[1], act_pos[:3], altern_enabled), reverse=True)
+            proj_polygons = [sp[0] for sp in sorted_p] 
 
         tx.translate_xyz(proj_polygons, act_pos[0], act_pos[1], act_pos[2])
-        tx.rotate_z(proj_polygons, act_pos[3])
-        tx.rotate_x(proj_polygons, act_pos[4])
-        tx.rotate_y(proj_polygons, act_pos[5])
+        # tx.rotate_z(proj_polygons, act_pos[3])
+        # tx.rotate_x(proj_polygons, act_pos[4])
+        # tx.rotate_y(proj_polygons, act_pos[5])
 
         proj_polygons = tx.project_points2(proj_polygons, d)
 

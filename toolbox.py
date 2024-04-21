@@ -101,27 +101,27 @@ def rotate_x(polygons, deg):
     rad = 2 * math.pi * deg / 360
     rotM = np.matrix(
         [[1, 0, 0, 0], [0, math.cos(rad), -math.sin(rad), 0], [0, math.sin(rad), math.cos(rad), 0], [0, 0, 0, 1]])
-    for polygon in polygons:
-        for point in polygon:
-            point['point'] = np.dot(rotM, point['point']).tolist()[0]
+    for i in range(len(polygons)):
+        for j in range(len(polygons[i])):
+            polygons[i][j] = np.dot(rotM, polygons[i][j]).tolist()[0]
 
 
 def rotate_y(polygons, deg):
     rad = 2 * math.pi * deg / 360
     rotM = np.matrix(
         [[math.cos(rad), 0, math.sin(rad), 0], [0, 1, 0, 0], [-math.sin(rad), 0, math.cos(rad), 0], [0, 0, 0, 1]])
-    for polygon in polygons:
-        for point in polygon:
-            point['point'] = np.dot(rotM, point['point']).tolist()[0]
+    for i in range(len(polygons)):
+        for j in range(len(polygons[i])):
+            polygons[i][j] = np.dot(rotM, polygons[i][j]).tolist()[0]
 
 
 def rotate_z(polygons, deg):
     rad = 2 * math.pi * deg / 360
     rotM = np.matrix(
         [[math.cos(rad), -math.sin(rad), 0, 0], [math.sin(rad), math.cos(rad), 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]])
-    for polygon in polygons:
-        for point in polygon:
-            point['point'] = np.dot(rotM, point['point']).tolist()[0]
+    for i in range(len(polygons)):
+        for j in range(len(polygons[i])):
+            polygons[i][j] = np.dot(rotM, polygons[i][j]).tolist()[0]
 
 
 # gen box starting with bottom near left corner
