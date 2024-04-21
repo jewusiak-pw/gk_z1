@@ -125,7 +125,8 @@ def rotate_z(polygons, deg):
 
 
 # gen box starting with bottom near left corner
-def gen_box(x, y, z, x_l, y_l, z_l):
+def gen_box(x, y, z, x_l, y_l, z_l, box_borders_untouch):
+    diff_margin = 0.1 if box_borders_untouch else 0
     p1 = [x, y, z, 1]
     p2 = [x + x_l, y, z, 1]
     p3 = [x + x_l, y, z + z_l, 1]
@@ -135,15 +136,17 @@ def gen_box(x, y, z, x_l, y_l, z_l):
     p7 = [x + x_l, y + y_l, z + z_l, 1]
     p8 = [x, y + y_l, z + z_l, 1]
 
-    s_btm = [p1, p2, p3, p4]
-    s_top = [p5, p6, p7, p8]
-    s_fwd = [p4, p3, p7, p8]
-    s_bck = [p1, p2, p6, p5]
-    s_left = [p1, p4, p8, p5]
-    s_right = [p2, p3, p7, p6]
+    s_btm = md([p1, p2, p3, p4], 0, -diff_margin,0)
+    s_top = md([p5, p6, p7, p8], 0, diff_margin, 0)
+    s_fwd = md([p4, p3, p7, p8], 0, 0, diff_margin)
+    s_bck = md([p1, p2, p6, p5], 0, 0, -diff_margin)
+    s_left = md([p1, p4, p8, p5], -diff_margin, 0, 0)
+    s_right = md([p2, p3, p7, p6], diff_margin, 0, 0)
 
     return [s_btm, s_top, s_fwd, s_bck, s_left, s_right]
 
+def md(ps,x,y,z):
+    return [[p[0]+x, p[1]+y, p[2]+z, *p[3:]] for p in ps]
 
 def intTryParse(value) -> int:
     try:
@@ -195,7 +198,7 @@ def calc_dist(polygon, cam_xyz, altern_enabled):
         points += poly_pts
         points += [gen_mid_point(poly_pts[i], poly_pts[i + 1]) for i in range(len(poly_pts) - 1)]
         points.append(gen_mid_point(poly_pts[0], poly_pts[-1]))
-        points += gen_random(50, poly_pts)
+        points += gen_random(1000, poly_pts)
 
     return min([cd(cam_xyz, point) for point in points])
 
