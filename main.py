@@ -24,22 +24,26 @@ b_test = [p1, p2, p3, p4, p5, p6, p7, p8]
 
 # test box def END
 
+box_borders_untouch = True
+
+# test box def END
+
 # 1st box def 
-b1 = tx.gen_box(100, 0, 250, 50, 120, 150)
+b1 = tx.gen_box(100, 0, 250, 50, 120, 150, box_borders_untouch)
 
 # 2nd box def
-b2 = tx.gen_box(-150, 0, 250, 50, 120, 150)
+b2 = tx.gen_box(-150, 0, 250, 50, 120, 150, box_borders_untouch)
 
 # 3rd box def 
-b3 = tx.gen_box(-150, 0, 500, 50, 120, 150)
+b3 = tx.gen_box(-150, 0, 500, 50, 120, 150, box_borders_untouch)
 
 # 4th box def 
-b4 = tx.gen_box(100, 0, 500, 50, 120, 150)
+b4 = tx.gen_box(100, 0, 500, 50, 120, 150, box_borders_untouch)
 
 polygons = []
 for d1 in range(250, 1001, 250):
-    polygons += tx.gen_box(100, 0, d1, 50, 120, 150)
-    polygons += tx.gen_box(-150, 0, d1, 50, 120, 150)
+    polygons += tx.gen_box(100, 0, d1, 50, 120, 150, box_borders_untouch)
+    polygons += tx.gen_box(-150, 0, d1, 50, 120, 150, box_borders_untouch)
 
 d = 1000
 d_orig = 1000

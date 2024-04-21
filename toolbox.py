@@ -1,6 +1,6 @@
 import numpy as np
 import math
-
+from shapely import Point, Polygon
 
 HEIGHT = 720
 WIDTH = 1280
@@ -124,7 +124,8 @@ def rotate_z(polygons, deg):
 
 
 # gen box starting with bottom near left corner
-def gen_box(x, y, z, x_l, y_l, z_l):
+def gen_box(x, y, z, x_l, y_l, z_l, box_borders_untouch):
+    diff_margin = 0.1 if box_borders_untouch else 0
     p1 = [x, y, z, 1]
     p2 = [x + x_l, y, z, 1]
     p3 = [x + x_l, y, z + z_l, 1]
@@ -134,14 +135,17 @@ def gen_box(x, y, z, x_l, y_l, z_l):
     p7 = [x + x_l, y + y_l, z + z_l, 1]
     p8 = [x, y + y_l, z + z_l, 1]
 
-    s_btm = [p1, p2, p3, p4]
-    s_top = [p5, p6, p7, p8]
-    s_fwd = [p4, p3, p7, p8]
-    s_bck = [p1, p2, p6, p5]
-    s_left = [p1, p4, p8, p5]
-    s_right = [p2, p3, p7, p6]
+    s_btm = md([p1, p2, p3, p4], 0, -diff_margin,0)
+    s_top = md([p5, p6, p7, p8], 0, diff_margin, 0)
+    s_fwd = md([p4, p3, p7, p8], 0, 0, diff_margin)
+    s_bck = md([p1, p2, p6, p5], 0, 0, -diff_margin)
+    s_left = md([p1, p4, p8, p5], -diff_margin, 0, 0)
+    s_right = md([p2, p3, p7, p6], diff_margin, 0, 0)
 
     return [s_btm, s_top, s_fwd, s_bck, s_left, s_right]
+
+def md(ps,x,y,z):
+    return [[p[0]+x, p[1]+y, p[2]+z, *p[3:]] for p in ps]
 
 
 def intTryParse(value) -> int:
@@ -152,18 +156,68 @@ def intTryParse(value) -> int:
 
 
 def is_in_polygon(proj_cam, poly_pts):
-    minx = min([pt[0] for pt in poly_pts])
-    maxx = max([pt[0] for pt in poly_pts])
-    miny = min([pt[1] for pt in poly_pts])
-    maxy = max([pt[1] for pt in poly_pts])
-    minz = min([pt[2] for pt in poly_pts])
-    maxz = max([pt[2] for pt in poly_pts])
-    
-    return isbtw(minx, proj_cam[0], maxx) and isbtw(miny, proj_cam[1], maxy) and isbtw(minz, proj_cam[2], maxz)
+    oxz_plane = [[0, 0, 0], [1, 0, 0], [1, 0, 1], [0, 0, 1]]
+
+    poly_proj_pts = [project_point_onto_plane(pp, oxz_plane) for pp in poly_pts]
+    poly_proj_pts = [[p[0], p[2]] for p in poly_proj_pts]
+    [oxz_cam_pos_x, _, oxz_cam_pos_z] = project_point_onto_plane(proj_cam, oxz_plane)
+    oxz_cam_pos = [oxz_cam_pos_x, oxz_cam_pos_z]
+
+    poly = Polygon(poly_proj_pts)
+    poi = Point(oxz_cam_pos)
+
+    return poly.contains(poi)
 
 
-def isbtw(a,b,c):
+def isbtw(a, b, c):
     return a <= b and b <= c;
+
+
+def plane_point_dist(cam_xyz, poly_pts):
+    [a, b, c, d] = equation_plane(*poly_pts[:3])
+    [x, y, z] = cam_xyz[:3]
+    top = abs(a * x + b * y + c * z + d)
+    btm = math.sqrt(a * a + b * b + c * c)
+    return top / btm
+
+
+def line_point_dist(line_points, point):
+    a = lineseg_dist(point, line_points[0], line_points[1])
+    return a
+
+
+def lineseg_dist(p, a, b):
+    p = np.array(p)
+    a = np.array(a)
+    b = np.array(b)
+
+    # normalized tangent vector
+    d = np.divide(b - a, np.linalg.norm(b - a))
+
+    # signed parallel distance components
+    s = np.dot(a - p, d)
+    t = np.dot(p - b, d)
+
+    # clamped parallel distance
+    h = np.maximum.reduce([s, t, 0])
+
+    # perpendicular distance component
+    c = np.cross(p - a, d)
+
+    return np.hypot(h, np.linalg.norm(c))
+
+
+def poly_border_point_dist(cam_xyz, poly_pts):
+    points_dists = [dist_p2p(cam_xyz, p) for p in poly_pts]
+    lines_dists = [line_point_dist([poly_pts[i], poly_pts[i + 1]], cam_xyz) for i in range(len(poly_pts) - 1)]
+    lines_dists.append(line_point_dist([poly_pts[0], poly_pts[-1]], cam_xyz))
+    points_dists += lines_dists
+    return min(points_dists)
+
+
+def dist_p2p(p1, p2):
+    return math.sqrt(sum([(p1[i] - p2[i]) ** 2 for i in range(3)]))
+
 
 def calc_dist(polygon):
     cam_xyz = [0, 0, 0]
@@ -172,13 +226,11 @@ def calc_dist(polygon):
     proj_cam = project_point_onto_plane(cam_xyz, poly_pts)
 
     if is_in_polygon(proj_cam, poly_pts):
-        pass
-        # use perpendicular
+        # use perpendicular to plane
+        return plane_point_dist(cam_xyz, poly_pts)
     else:
-        pass
         # use dist to poly
-
-    return None
+        return poly_border_point_dist(cam_xyz, poly_pts)
 
 
 def deep_copy(polygons):
@@ -205,9 +257,8 @@ def equation_plane(p1, p2, p3):
 def project_point_onto_plane(point, plane_pts):
     v1 = (plane_pts[1][0] - plane_pts[0][0], plane_pts[1][1] - plane_pts[0][1], plane_pts[1][2] - plane_pts[0][2])
     v2 = (plane_pts[2][0] - plane_pts[0][0], plane_pts[2][1] - plane_pts[0][1], plane_pts[2][2] - plane_pts[0][2])
-    [a,b,c] = np.cross(v1,v2).tolist()
-    [d,e,f] = plane_pts[0][:3]
-    [x,y,z] = point
-    t = (a*d-a*x+b*e-b*y+c*f-c*z)/(a**2 + b**2 + c**2)
-    return [x+t*a, y+t*b, z+t*c]
-    
+    [a, b, c] = np.cross(v1, v2).tolist()
+    [d, e, f] = plane_pts[0][:3]
+    [x, y, z] = point
+    t = (a * d - a * x + b * e - b * y + c * f - c * z) / (a ** 2 + b ** 2 + c ** 2)
+    return [x + t * a, y + t * b, z + t * c]
