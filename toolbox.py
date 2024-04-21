@@ -92,36 +92,36 @@ def to_pg_xyz(point):
 
 def translate_xyz(polygons, x, y, z):
     tm = gen_translation_mx(-x, -y, -z)
-    for i in range(len(polygons)):
-        for j in range(len(polygons[i])):
-            polygons[i][j] = np.dot(tm, polygons[i][j]).tolist()[0]
+    for polygon in polygons:
+        for point in polygon:
+            point['point'] = np.dot(tm, point['point']).tolist()[0]
 
 
 def rotate_x(polygons, deg):
     rad = 2 * math.pi * deg / 360
     rotM = np.matrix(
         [[1, 0, 0, 0], [0, math.cos(rad), -math.sin(rad), 0], [0, math.sin(rad), math.cos(rad), 0], [0, 0, 0, 1]])
-    for i in range(len(polygons)):
-        for j in range(len(polygons[i])):
-            polygons[i][j] = np.dot(rotM, polygons[i][j]).tolist()[0]
+    for polygon in polygons:
+        for point in polygon:
+            point['point'] = np.dot(rotM, point['point']).tolist()[0]
 
 
 def rotate_y(polygons, deg):
     rad = 2 * math.pi * deg / 360
     rotM = np.matrix(
         [[math.cos(rad), 0, math.sin(rad), 0], [0, 1, 0, 0], [-math.sin(rad), 0, math.cos(rad), 0], [0, 0, 0, 1]])
-    for i in range(len(polygons)):
-        for j in range(len(polygons[i])):
-            polygons[i][j] = np.dot(rotM, polygons[i][j]).tolist()[0]
+    for polygon in polygons:
+        for point in polygon:
+            point['point'] = np.dot(rotM, point['point']).tolist()[0]
 
 
 def rotate_z(polygons, deg):
     rad = 2 * math.pi * deg / 360
     rotM = np.matrix(
         [[math.cos(rad), -math.sin(rad), 0, 0], [math.sin(rad), math.cos(rad), 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]])
-    for i in range(len(polygons)):
-        for j in range(len(polygons[i])):
-            polygons[i][j] = np.dot(rotM, polygons[i][j]).tolist()[0]
+    for polygon in polygons:
+        for point in polygon:
+            point['point'] = np.dot(rotM, point['point']).tolist()[0]
 
 
 # gen box starting with bottom near left corner
@@ -181,8 +181,8 @@ def gen_random(n, poly_pts):
     return out
 
 
-def calc_dist(polygon):
-    cam_xyz = [0, 0, 0]
+def calc_dist(polygon, cam_xyz):
+    # cam_xyz = [0, 0, 0]
 
     poly_pts = [point['point'][:3] for point in polygon]
 
