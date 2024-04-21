@@ -1,6 +1,5 @@
 import time
 
-import numpy as np
 import pygame
 import toolbox as tx
 
@@ -24,7 +23,7 @@ b_test = [p1, p2, p3, p4, p5, p6, p7, p8]
 
 # test box def END
 
-box_borders_untouch = True
+box_borders_untouch = False
 
 # test box def END
 
@@ -57,6 +56,8 @@ tx.translate_xyz(polygons_untouching, 0, 60, 0)
 
 polygons_backup = tx.deep_copy(polygons)
 polygons_unt_backup = tx.deep_copy(polygons_untouching)
+if box_borders_untouch:
+    polygons = tx.deep_copy(polygons_unt_backup)
 
 walls_enabled = True
 
@@ -139,17 +140,16 @@ while True:
 
 
 
+    # sprawdzenie widoczności z>0
     proj_polygons = tx.visiblity(polygons)
 
-    polygons_ = [p['point'][:3] for p in proj_polygons[0]]
-    eqp = tx.equation_plane(*(polygons_[:3]))
-    
-    tx.calc_dist(proj_polygons[0])
-    poj_pt = tx.project_point_onto_plane((150,-400, 300), polygons_)
+    # nie projektujemy ścian niewidocznych (tylnich)
+    proj_polygons = tx.hide_hidden(proj_polygons, [0,0,0])
 
-
+    # sortowanie po odległości od obserwatora
     proj_polygons.sort(key=tx.calc_dist, reverse=True)
 
+    # projekcja
     proj_polygons = tx.project_points2(proj_polygons, d)
 
     # draw projected points

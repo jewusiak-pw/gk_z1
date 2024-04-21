@@ -35,7 +35,7 @@ def visiblity(polygons):
 
             visible = zp > 0
 
-            outp2.append({"point": polygon[j], "visibility": visible})
+            outp2.append({"point": polygon[j], "visibility": visible, 'hidden' : False})
         outp.append(outp2)
     return outp
 
@@ -135,17 +135,18 @@ def gen_box(x, y, z, x_l, y_l, z_l, box_borders_untouch):
     p7 = [x + x_l, y + y_l, z + z_l, 1]
     p8 = [x, y + y_l, z + z_l, 1]
 
-    s_btm = md([p1, p2, p3, p4], 0, -diff_margin,0)
-    s_top = md([p5, p6, p7, p8], 0, diff_margin, 0)
+    s_btm = md([p1, p2, p3, p4], 0, -diff_margin, 0)
+    s_top = md([p8, p7, p6, p5], 0, diff_margin, 0)
     s_fwd = md([p4, p3, p7, p8], 0, 0, diff_margin)
-    s_bck = md([p1, p2, p6, p5], 0, 0, -diff_margin)
+    s_bck = md([p1, p5, p6, p2], 0, 0, -diff_margin)
     s_left = md([p1, p4, p8, p5], -diff_margin, 0, 0)
-    s_right = md([p2, p3, p7, p6], diff_margin, 0, 0)
+    s_right = md([p2, p6, p7, p3], diff_margin, 0, 0)
 
     return [s_btm, s_top, s_fwd, s_bck, s_left, s_right]
 
-def md(ps,x,y,z):
-    return [[p[0]+x, p[1]+y, p[2]+z, *p[3:]] for p in ps]
+
+def md(ps, x, y, z):
+    return [[p[0] + x, p[1] + y, p[2] + z, *p[3:]] for p in ps]
 
 
 def intTryParse(value) -> int:
@@ -208,11 +209,11 @@ def lineseg_dist(p, a, b):
 
 
 def poly_border_point_dist(cam_xyz, poly_pts):
-    points_dists = [dist_p2p(cam_xyz, p) for p in poly_pts]
+    # points_dists = [dist_p2p(cam_xyz, p) for p in poly_pts]
     lines_dists = [line_point_dist([poly_pts[i], poly_pts[i + 1]], cam_xyz) for i in range(len(poly_pts) - 1)]
     lines_dists.append(line_point_dist([poly_pts[0], poly_pts[-1]], cam_xyz))
-    points_dists += lines_dists
-    return min(points_dists)
+    # points_dists += lines_dists
+    return min(lines_dists)
 
 
 def dist_p2p(p1, p2):
@@ -262,3 +263,18 @@ def project_point_onto_plane(point, plane_pts):
     [x, y, z] = point
     t = (a * d - a * x + b * e - b * y + c * f - c * z) / (a ** 2 + b ** 2 + c ** 2)
     return [x + t * a, y + t * b, z + t * c]
+
+
+def hide_hidden(proj_polygons, observer_xyz):
+    outp = []
+    for polygon in proj_polygons:
+        plane_pts = [p['point'] for p in polygon]
+        v1 = (plane_pts[0][0] - plane_pts[1][0], plane_pts[0][1] - plane_pts[1][1], plane_pts[0][2] - plane_pts[1][2])
+        v2 = (plane_pts[2][0] - plane_pts[1][0], plane_pts[2][1] - plane_pts[1][1], plane_pts[2][2] - plane_pts[1][2])
+        vv = np.cross(v2,v1).tolist()
+        obs_v = (observer_xyz[0] - plane_pts[1][0], observer_xyz[1] - plane_pts[1][1], observer_xyz[2] - plane_pts[1][2])
+        val= np.dot(vv, obs_v)
+        # visible
+        if val > 0:
+            outp.append(polygon)
+    return outp
