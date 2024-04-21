@@ -41,17 +41,22 @@ b3 = tx.gen_box(-150, 0, 500, 50, 120, 150, box_borders_untouch)
 b4 = tx.gen_box(100, 0, 500, 50, 120, 150, box_borders_untouch)
 
 polygons = []
+polygons_untouching = []
 for d1 in range(250, 1001, 250):
-    polygons += tx.gen_box(100, 0, d1, 50, 120, 150, box_borders_untouch)
-    polygons += tx.gen_box(-150, 0, d1, 50, 120, 150, box_borders_untouch)
+    polygons_untouching += tx.gen_box(100, 0, d1, 50, 120, 150, True)
+    polygons_untouching += tx.gen_box(-150, 0, d1, 50, 120, 150, True)
+    polygons += tx.gen_box(100, 0, d1, 50, 120, 150, False)
+    polygons += tx.gen_box(-150, 0, d1, 50, 120, 150, False)
 
 d = 1000
 d_orig = 1000
 md = d * -1
 
 tx.translate_xyz(polygons, 0, 60, 0)
+tx.translate_xyz(polygons_untouching, 0, 60, 0)
 
 polygons_backup = tx.deep_copy(polygons)
+polygons_unt_backup = tx.deep_copy(polygons_untouching)
 
 walls_enabled = True
 
@@ -125,6 +130,11 @@ while True:
     # toggle walls
     if keys[pygame.K_F6]:
         walls_enabled = not walls_enabled
+        time.sleep(0.1)
+    # toggle box borders
+    if keys[pygame.K_F7]:
+        box_borders_untouch = not box_borders_untouch
+        polygons = tx.deep_copy(polygons_unt_backup if box_borders_untouch else  polygons_backup)
         time.sleep(0.1)
 
 

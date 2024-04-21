@@ -125,7 +125,7 @@ def rotate_z(polygons, deg):
 
 # gen box starting with bottom near left corner
 def gen_box(x, y, z, x_l, y_l, z_l, box_borders_untouch):
-    diff_margin = 0.1 if box_borders_untouch else 0
+    diff_margin = 0.05 if box_borders_untouch else 0
     p1 = [x, y, z, 1]
     p2 = [x + x_l, y, z, 1]
     p3 = [x + x_l, y, z + z_l, 1]
