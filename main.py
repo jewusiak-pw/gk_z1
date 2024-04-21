@@ -51,6 +51,10 @@ polygons_backup = tx.deep_copy(polygons)
 
 walls_enabled = True
 
+act_pos = [0, 0, 0, 0, 0, 0]
+
+proj = True
+
 while True:
     # Process player inputs.
     for event in pygame.event.get():
@@ -70,40 +74,80 @@ while True:
     # right/left
     if keys[pygame.K_LEFT]:
         tx.translate_xyz(polygons, -xyz_step, 0, 0)
+        act_pos[0] = act_pos[0] - xyz_step
+        proj = True
     if keys[pygame.K_RIGHT]:
         tx.translate_xyz(polygons, xyz_step, 0, 0)
+        act_pos[0] = act_pos[0] + xyz_step
+        proj = True
     # up/down
     if keys[pygame.K_UP]:
         tx.translate_xyz(polygons, 0, xyz_step, 0)
+        act_pos[1] = act_pos[1] + xyz_step
+        proj = True
     if keys[pygame.K_DOWN]:
         tx.translate_xyz(polygons, 0, -xyz_step, 0)
+        act_pos[1] = act_pos[1] - xyz_step
+        proj = True
     # fwd/bckwd
     if keys[pygame.K_PAGEUP]:
         tx.translate_xyz(polygons, 0, 0, xyz_step)
+        act_pos[2] = act_pos[2] + xyz_step
+        proj = True
     if keys[pygame.K_PAGEDOWN]:
         tx.translate_xyz(polygons, 0, 0, -xyz_step)
+        act_pos[2] = act_pos[2] - xyz_step
+        proj = True
     # pitch
     if keys[pygame.K_w]:
         tx.rotate_x(polygons, deg_step)
+        act_pos[4] = act_pos[4] + deg_step
+        proj = True
     if keys[pygame.K_s]:
         tx.rotate_x(polygons, -deg_step)
+        act_pos[4] = act_pos[4] - deg_step
+        proj = True
     # yaw
     if keys[pygame.K_a]:
         tx.rotate_z(polygons, deg_step)
+        act_pos[5] = act_pos[5] + deg_step
+        proj = True
     if keys[pygame.K_d]:
         tx.rotate_z(polygons, -deg_step)
+        act_pos[5] = act_pos[5] - deg_step
+        proj = True
     # roll
     if keys[pygame.K_q]:
         tx.rotate_y(polygons, deg_step)
+        act_pos[3] = act_pos[3] + deg_step
+        proj = True
     if keys[pygame.K_e]:
         tx.rotate_y(polygons, -deg_step)
+        act_pos[3] = act_pos[3] - deg_step
+        proj = True
     # zoom
     if keys[pygame.K_l] and d > 0.1:
         d -= d_step
+        proj = True
     if keys[pygame.K_p]:
         d += d_step
+        proj = True
+    if keys[pygame.K_F3]:
+        print("act pos (x,y,z):", act_pos[:3])
+        print("act pos (roll, pitch, yaw):", act_pos[3:])
+        print("act zoom:", d)
+
+        p1 = [-125, 0, 325]
+        p2 = [-100, 60, 325]
+        dp1 = tx.dist_p2p(p1, act_pos)
+        dp2 = tx.dist_p2p(p2, act_pos)
+
+        print('dist btm', p1, ' d =', dp1, ' dist right', p2, ' d =', dp2, ' is the moment?', dp1 < dp2)
+
+        time.sleep(0.1)
     # manual change of position
     if keys[pygame.K_F2]:
+        time.sleep(0.1)
         trans_x = tx.intTryParse(input("Translate X (+ right / left): "))
         trans_y = tx.intTryParse(input("Translate Y (+ up / down): "))
         trans_z = tx.intTryParse(input("Translate Z (+ fwd / bckwd):"))
@@ -114,35 +158,38 @@ while True:
         tx.rotate_x(polygons, r_pitch)
         tx.rotate_y(polygons, r_yaw)
         tx.rotate_z(polygons, r_roll)
+        proj = True
     # reset position
     if keys[pygame.K_F5]:
         polygons = tx.deep_copy(polygons_backup)
         d = d_orig
+        proj = True
     # toggle walls
     if keys[pygame.K_F6]:
         walls_enabled = not walls_enabled
+        proj = True
         time.sleep(0.1)
 
+    if proj or True:
+        proj_polygons = tx.visiblity(polygons)
     
-
-    proj_polygons = tx.visiblity(polygons)
+        proj_polygons.sort(key=tx.calc_dist, reverse=True)
     
-    proj_polygons.sort(key=tx.calc_dist, reverse=True)
-
-    proj_polygons = tx.project_points2(proj_polygons, d)
-
-    # draw projected points
-    for polygon in proj_polygons:
-        for point in polygon:
-            if point['visibility'] == True:
-                pygame.draw.circle(screen, "black", tx.to_pg_xyz(point['point'])[:2], 4)
-
-    # draw polygons
-    for polygon in proj_polygons:
-        if sum([(1 if point['visibility'] == True else 0) for point in polygon]) == 4:
-            if walls_enabled:
-                pygame.draw.polygon(screen, "white", [tx.to_pg_xyz(point['point'][:2]) for point in polygon], 0) 
-            pygame.draw.polygon(screen, "black", [tx.to_pg_xyz(point['point'][:2]) for point in polygon], 2) 
-
-    pygame.display.update()  # Refresh on-screen display
+        proj_polygons = tx.project_points2(proj_polygons, d)
+    
+        # draw projected points
+        for polygon in proj_polygons:
+            for point in polygon:
+                if point['visibility'] == True:
+                    pygame.draw.circle(screen, "black", tx.to_pg_xyz(point['point'])[:2], 4)
+    
+        # draw polygons
+        for polygon in proj_polygons:
+            if sum([(1 if point['visibility'] == True else 0) for point in polygon]) == 4:
+                if walls_enabled:
+                    pygame.draw.polygon(screen, "white", [tx.to_pg_xyz(point['point'][:2]) for point in polygon], 0)
+                pygame.draw.polygon(screen, "black", [tx.to_pg_xyz(point['point'][:2]) for point in polygon], 2)
+    
+        pygame.display.update()  # Refresh on-screen display
+        proj= False
     clock.tick(60)  # wait until next frame (at 60 FPS)

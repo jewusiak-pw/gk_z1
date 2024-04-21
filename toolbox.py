@@ -177,7 +177,7 @@ def gen_random(n, poly_pts):
 
     out = []
     for i in range(n):
-        out.append([random.randint(minx, maxx), random.randint(miny, maxy), random.randint(minz, maxz)])
+        out.append([random.uniform(minx, maxx), random.uniform(miny, maxy), random.uniform(minz, maxz)])
     return out
 
 
@@ -194,10 +194,13 @@ def calc_dist(polygon):
     points += poly_pts
     points += [gen_mid_point(poly_pts[i], poly_pts[i + 1]) for i in range(len(poly_pts) - 1)]
     points.append(gen_mid_point(poly_pts[0], poly_pts[-1]))
-    points += gen_random(50, poly_pts)
+    points += gen_random(1000, poly_pts)
 
     return min([cd(cam_xyz, point) for point in points])
 
 
 def deep_copy(polygons):
     return [polygon.copy() for polygon in polygons]
+
+def dist_p2p(p1,p2):
+    return math.sqrt(sum([(p1[i]-p2[i])**2 for i in range(3)]))
