@@ -92,9 +92,9 @@ def to_pg_xyz(point):
 
 def translate_xyz(polygons, x, y, z):
     tm = gen_translation_mx(-x, -y, -z)
-    for polygon in polygons:
-        for point in polygon:
-            point['point'] = np.dot(tm, point['point']).tolist()[0]
+    for i in range(len(polygons)):
+        for j in range(len(polygons[i])):
+            polygons[i][j] = np.dot(tm, polygons[i][j]).tolist()[0]
 
 
 def rotate_x(polygons, deg):
@@ -195,7 +195,7 @@ def calc_dist(polygon, cam_xyz, altern_enabled):
         points += poly_pts
         points += [gen_mid_point(poly_pts[i], poly_pts[i + 1]) for i in range(len(poly_pts) - 1)]
         points.append(gen_mid_point(poly_pts[0], poly_pts[-1]))
-        points += gen_random(1000, poly_pts)
+        points += gen_random(50, poly_pts)
 
     return min([cd(cam_xyz, point) for point in points])
 

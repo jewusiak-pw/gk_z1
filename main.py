@@ -75,29 +75,29 @@ while True:
     keys = pygame.key.get_pressed()
     # right/left
     if keys[pygame.K_LEFT]:
-        # tx.translate_xyz(polygons, -xyz_step, 0, 0)
+        tx.translate_xyz(polygons, -xyz_step, 0, 0)
         act_pos[0] = act_pos[0] - xyz_step
         proj = True
     if keys[pygame.K_RIGHT]:
-        # tx.translate_xyz(polygons, xyz_step, 0, 0)
+        tx.translate_xyz(polygons, xyz_step, 0, 0)
         act_pos[0] = act_pos[0] + xyz_step
         proj = True
     # up/down
     if keys[pygame.K_UP]:
-        # tx.translate_xyz(polygons, 0, xyz_step, 0)
+        tx.translate_xyz(polygons, 0, xyz_step, 0)
         act_pos[1] = act_pos[1] + xyz_step
         proj = True
     if keys[pygame.K_DOWN]:
-        # tx.translate_xyz(polygons, 0, -xyz_step, 0)
+        tx.translate_xyz(polygons, 0, -xyz_step, 0)
         act_pos[1] = act_pos[1] - xyz_step
         proj = True
     # fwd/bckwd
     if keys[pygame.K_PAGEUP]:
-        # tx.translate_xyz(polygons, 0, 0, xyz_step)
+        tx.translate_xyz(polygons, 0, 0, xyz_step)
         act_pos[2] = act_pos[2] + xyz_step
         proj = True
     if keys[pygame.K_PAGEDOWN]:
-        # tx.translate_xyz(polygons, 0, 0, -xyz_step)
+        tx.translate_xyz(polygons, 0, 0, -xyz_step)
         act_pos[2] = act_pos[2] - xyz_step
         proj = True
     # pitch
@@ -182,12 +182,14 @@ while True:
 
     if proj or True:
         proj_polygons = tx.visiblity(polygons)
+        ref_pos = [0,0,0] # act_pos[:3]
         if walls_enabled:
-            sorted_p = list(zip(proj_polygons, [ [{"point" : pbb, 'visibility': True} for pbb in pb] for pb in polygons_backup]))
-            sorted_p.sort(key=lambda p: tx.calc_dist(p[1], act_pos[:3], altern_enabled), reverse=True)
-            proj_polygons = [sp[0] for sp in sorted_p] 
+            # sorted_p = list(zip(proj_polygons, [ [{"point" : pbb, 'visibility': True} for pbb in pb] for pb in polygons_backup]))
+            # sorted_p.sort(key=lambda p: tx.calc_dist(p[1], ref_pos, altern_enabled), reverse=True)
+            # proj_polygons = [sp[0] for sp in sorted_p] 
+            proj_polygons.sort(key=lambda p: tx.calc_dist(p, ref_pos, altern_enabled), reverse=True)
 
-        tx.translate_xyz(proj_polygons, act_pos[0], act_pos[1], act_pos[2])
+        # tx.translate_xyz(proj_polygons, act_pos[0], act_pos[1], act_pos[2])
         # tx.rotate_z(proj_polygons, act_pos[3])
         # tx.rotate_x(proj_polygons, act_pos[4])
         # tx.rotate_y(proj_polygons, act_pos[5])
