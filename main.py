@@ -181,7 +181,8 @@ while True:
 
     if proj or True:
         proj_polygons = tx.visiblity(polygons)
-        proj_polygons.sort(key=lambda p: tx.calc_dist(p, act_pos[:3], altern_enabled), reverse=True)
+        if walls_enabled:
+            proj_polygons.sort(key=lambda p: tx.calc_dist(p, act_pos[:3], altern_enabled), reverse=True)
 
         tx.translate_xyz(proj_polygons, act_pos[0], act_pos[1], act_pos[2])
         tx.rotate_z(proj_polygons, act_pos[3])
@@ -191,10 +192,10 @@ while True:
         proj_polygons = tx.project_points2(proj_polygons, d)
 
         # draw projected points
-        for polygon in proj_polygons:
-            for point in polygon:
-                if point['visibility'] == True:
-                    pygame.draw.circle(screen, "black", tx.to_pg_xyz(point['point'])[:2], 4)
+        # for polygon in proj_polygons:
+        #     for point in polygon:
+        #         if point['visibility'] == True:
+        #             pygame.draw.circle(screen, "black", tx.to_pg_xyz(point['point'])[:2], 4)
 
         # draw polygons
         for polygon in proj_polygons:
