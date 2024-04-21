@@ -200,4 +200,4 @@ while True:
         pygame.display.update()  # Refresh on-screen display
         proj = False
         polygons = tx.deep_copy(polygons_backup)
-    clock.tick(60)  # wait until next frame (at 60 FPS)
+    clock.tick(240)  # wait until next frame (at 60 FPS)
