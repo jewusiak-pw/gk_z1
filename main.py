@@ -82,7 +82,6 @@ while True:
     chg = [0, 0, 0, 0, 0, 0]
     # right/left
     if keys[pygame.K_LEFT]:
-        tx.translate_xyz(polygons, -xyz_step, 0, 0)
         chg[0] -= xyz_step
     if keys[pygame.K_RIGHT]:
         chg[0] += xyz_step
@@ -161,6 +160,7 @@ while True:
 
     # sortowanie po odległości od obserwatora
     proj_polygons.sort(key=tx.calc_dist, reverse=True)
+    # proj_polygons.sort(key=tx.calc_dist_middlepoints, reverse=True)
 
     # projekcja
     proj_polygons = tx.project_points2(proj_polygons, d)

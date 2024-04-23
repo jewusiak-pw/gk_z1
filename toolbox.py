@@ -233,6 +233,13 @@ def calc_dist(polygon):
         # use dist to poly
         return poly_border_point_dist(cam_xyz, poly_pts)
 
+def calc_dist_middlepoints(polygon):
+    [x2, y2, z2] = cam_xyz = [0, 0, 0]
+    x = sum([point['point'][0] for point in polygon]) / len(polygon)
+    y = sum([point['point'][1] for point in polygon]) / len(polygon)
+    z = sum([point['point'][2] for point in polygon]) / len(polygon)
+    dist = math.sqrt((x2-x)**2 + (y2-y)**2 + (z2-z)**2)
+    return dist
 
 def deep_copy(polygons):
     return [polygon.copy() for polygon in polygons]
