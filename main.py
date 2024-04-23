@@ -54,6 +54,8 @@ md = d * -1
 tx.translate_xyz(polygons, 0, 60, 0)
 tx.translate_xyz(polygons_untouching, 0, 60, 0)
 
+coords = [0,0,0,0,0,0]
+
 polygons_backup = tx.deep_copy(polygons)
 polygons_unt_backup = tx.deep_copy(polygons_untouching)
 if box_borders_untouch:
@@ -77,36 +79,38 @@ while True:
     d_step = 5
 
     keys = pygame.key.get_pressed()
+    chg = [0, 0, 0, 0, 0, 0]
     # right/left
     if keys[pygame.K_LEFT]:
         tx.translate_xyz(polygons, -xyz_step, 0, 0)
+        chg[0] -= xyz_step
     if keys[pygame.K_RIGHT]:
-        tx.translate_xyz(polygons, xyz_step, 0, 0)
+        chg[0] += xyz_step
     # up/down
     if keys[pygame.K_UP]:
-        tx.translate_xyz(polygons, 0, xyz_step, 0)
+        chg[1] += xyz_step
     if keys[pygame.K_DOWN]:
-        tx.translate_xyz(polygons, 0, -xyz_step, 0)
+        chg[1] -= xyz_step
     # fwd/bckwd
     if keys[pygame.K_PAGEUP]:
-        tx.translate_xyz(polygons, 0, 0, xyz_step)
+        chg[2] += xyz_step
     if keys[pygame.K_PAGEDOWN]:
-        tx.translate_xyz(polygons, 0, 0, -xyz_step)
+        chg[2] -= xyz_step
+    # roll
+    if keys[pygame.K_a]:
+        chg[3] -= deg_step
+    if keys[pygame.K_d]:
+        chg[3] += deg_step
     # pitch
     if keys[pygame.K_w]:
-        tx.rotate_x(polygons, deg_step)
+        chg[4] += deg_step
     if keys[pygame.K_s]:
-        tx.rotate_x(polygons, -deg_step)
+        chg[4] -= deg_step    
     # yaw
-    if keys[pygame.K_a]:
-        tx.rotate_z(polygons, deg_step)
-    if keys[pygame.K_d]:
-        tx.rotate_z(polygons, -deg_step)
-    # roll
     if keys[pygame.K_q]:
-        tx.rotate_y(polygons, deg_step)
+        chg[5] += deg_step
     if keys[pygame.K_e]:
-        tx.rotate_y(polygons, -deg_step)
+        chg[5] -= deg_step
     # zoom
     if keys[pygame.K_l] and d > 0.1:
         d -= d_step
@@ -120,14 +124,17 @@ while True:
         r_roll = tx.intTryParse(input("Roll rotation deg (+ CW): "))
         r_pitch = tx.intTryParse(input("Pitch rotation deg (+ UP): "))
         r_yaw = tx.intTryParse(input("Yaw rotation deg (+ LEFT): "))
-        tx.translate_xyz(polygons, trans_x, trans_y, trans_z)
-        tx.rotate_x(polygons, r_pitch)
-        tx.rotate_y(polygons, r_yaw)
-        tx.rotate_z(polygons, r_roll)
+        chg = [trans_x, trans_y, trans_z, r_roll, r_pitch, r_yaw]
+    # print loc
+    if keys[pygame.K_F3]:
+        print('location (x,y,z):', *coords[:3])
+        print('location (roll, pitch, yaw):', *coords[3:6])
+        time.sleep(0.1)
     # reset position
     if keys[pygame.K_F5]:
         polygons = tx.deep_copy(polygons_backup)
         d = d_orig
+        coords = [0,0,0,0,0,0]
     # toggle walls
     if keys[pygame.K_F6]:
         walls_enabled = not walls_enabled
@@ -135,10 +142,16 @@ while True:
     # toggle box borders
     if keys[pygame.K_F7]:
         box_borders_untouch = not box_borders_untouch
-        polygons = tx.deep_copy(polygons_unt_backup if box_borders_untouch else  polygons_backup)
+        polygons = tx.deep_copy(polygons_unt_backup if box_borders_untouch else polygons_backup)
         time.sleep(0.1)
 
-
+    # make changes
+    if len(list(filter(lambda x: x != 0, chg))) != 0:
+        tx.translate_xyz(polygons, *chg[:3])
+        tx.rotate_z(polygons, chg[3])
+        tx.rotate_x(polygons, chg[4])
+        tx.rotate_y(polygons, chg[5])
+        coords = [coords[i]+chg[i] for i in range(len(chg))]
 
     # sprawdzenie widoczności z>0
     proj_polygons = tx.visiblity(polygons)
@@ -164,7 +177,6 @@ while True:
             if walls_enabled:
                 pygame.draw.polygon(screen, "white", [tx.to_pg_xyz(point['point'][:2]) for point in polygon], 0)
             pygame.draw.polygon(screen, "black", [tx.to_pg_xyz(point['point'][:2]) for point in polygon], 2)
-
 
     pygame.display.update()  # Refresh on-screen display
     clock.tick(60)  # wait until next frame (at 60 FPS)
