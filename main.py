@@ -157,7 +157,7 @@ while True:
     proj_polygons = tx.visiblity(polygons)
 
     # nie projektujemy ścian niewidocznych (tylnich)
-    # proj_polygons = tx.hide_hidden(proj_polygons, [0,0,0])
+    proj_polygons = tx.hide_hidden(proj_polygons, [0, 0, 0])
 
     # sortowanie po odległości od obserwatora
     proj_polygons.sort(key=tx.calc_dist, reverse=True)
