@@ -41,11 +41,10 @@ b4 = tx.gen_box(100, 0, 500, 50, 120, 150, box_borders_untouch)
 
 polygons = []
 polygons_untouching = []
-for d1 in range(250, 1001, 250):
-    polygons_untouching += tx.gen_box(100, 0, d1, 50, 120, 150, True)
-    polygons_untouching += tx.gen_box(-150, 0, d1, 50, 120, 150, True)
-    polygons += tx.gen_box(100, 0, d1, 50, 120, 150, False)
-    polygons += tx.gen_box(-150, 0, d1, 50, 120, 150, False)
+polygons_untouching += tx.gen_box(-50, 25, 150, 150, 10, 150, True)
+polygons_untouching += tx.gen_box(-50, 0, 100, 150, 10, 150, True)
+# polygons += tx.gen_box(100, 0, d1, 50, 120, 150, False)
+# polygons += tx.gen_box(-150, 0, d1, 50, 120, 150, False)
 
 d = 1000
 d_orig = 1000
@@ -179,4 +178,4 @@ while True:
             pygame.draw.polygon(screen, "black", [tx.to_pg_xyz(point['point'][:2]) for point in polygon], 2)
 
     pygame.display.update()  # Refresh on-screen display
-    clock.tick(60)  # wait until next frame (at 60 FPS)
+    clock.tick(240)  # wait until next frame (at 60 FPS)
