@@ -303,12 +303,29 @@ def divide_polygon(polys, n):
     return divide_polygon(p, n-1)
         
 def divide_list_polygons(polygons):
-    pout= []
+    pout=[]
     for polygon in polygons:
-        pout+=divide_polygon_once(polygon)
+        pout+=divide_rect_into_4(polygon)
     return pout
 
-def divide_polygon_once(poly):
+
+def divide_rect_into_4(poly):
+    # points = [p['point'] for p in poly]
+    points = poly
+    polys = []
+    pointn = len(points)
+
+    mids = [mid_plane([points[i], points[(i+1)%pointn]]) for i in range(pointn)]
+    midp = mid_plane(points)
+
+    for i in range(len(points)):
+        polys.append([points[i], mids[i], midp, mids[(i-1)%pointn]])
+    
+        
+
+    return polys
+
+def divide_polygon_into_triangles(poly):
     # points = [p['point'] for p in poly]
     points = poly
     polys = []
@@ -336,4 +353,7 @@ def divide_polygon_once(poly):
 def div_polygons(proj_polygons, n):
     out_polygons = []
     out_polygons = divide_polygon(proj_polygons, n)
-    return out_polygons
+    op=[]
+    for p in out_polygons:
+        op+= divide_polygon_into_triangles(p)
+    return op

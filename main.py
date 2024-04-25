@@ -55,8 +55,8 @@ tx.translate_xyz(polygons_untouching, 0, 60, 0)
 
 coords = [0,0,0,0,0,0]
 
-polygons = tx.div_polygons(polygons, 2)
-polygons_untouching = tx.div_polygons(polygons_untouching, 2)
+# polygons = tx.div_polygons(polygons, 2)
+polygons_untouching = tx.div_polygons(polygons_untouching, 3)
 
 polygons_backup = tx.deep_copy(polygons)
 polygons_unt_backup = tx.deep_copy(polygons_untouching)
@@ -168,10 +168,10 @@ while True:
     proj_polygons = tx.project_points2(proj_polygons, d)
 
     # draw projected points
-    for polygon in proj_polygons:
-        for point in polygon:
-            if point['visibility'] == True:
-                pygame.draw.circle(screen, "black", tx.to_pg_xyz(point['point'])[:2], 4)
+    # for polygon in proj_polygons:
+    #     for point in polygon:
+    #         if point['visibility'] == True:
+    #             pygame.draw.circle(screen, "black", tx.to_pg_xyz(point['point'])[:2], 4)
 
     # draw polygons
     for polygon in proj_polygons:
@@ -181,4 +181,4 @@ while True:
             pygame.draw.polygon(screen, "black", [tx.to_pg_xyz(point['point'][:2]) for point in polygon], 2)
 
     pygame.display.update()  # Refresh on-screen display
-    clock.tick(240)  # wait until next frame (at 60 FPS)
+    # clock.tick(240)  # wait until next frame (at 60 FPS)
