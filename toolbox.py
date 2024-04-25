@@ -142,7 +142,7 @@ def gen_box(x, y, z, x_l, y_l, z_l, box_borders_untouch):
     s_left = md([p1, p4, p8, p5], -diff_margin, 0, 0)
     s_right = md([p2, p6, p7, p3], diff_margin, 0, 0)
 
-    return [s_btm, s_top, s_fwd, s_bck, s_left, s_right]
+    return [s_btm]#, s_top, s_fwd, s_bck, s_left, s_right]
 
 
 def md(ps, x, y, z):
