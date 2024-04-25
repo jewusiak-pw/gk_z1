@@ -136,13 +136,13 @@ def gen_box(x, y, z, x_l, y_l, z_l, box_borders_untouch):
     p8 = [x, y + y_l, z + z_l, 1]
 
     s_btm = md([p1, p2, p3, p4], 0, -diff_margin, 0)
-    # s_top = md([p8, p7, p6, p5], 0, diff_margin, 0)
-    # s_fwd = md([p4, p3, p7, p8], 0, 0, diff_margin)
-    # s_bck = md([p1, p5, p6, p2], 0, 0, -diff_margin)
-    # s_left = md([p1, p4, p8, p5], -diff_margin, 0, 0)
-    # s_right = md([p2, p6, p7, p3], diff_margin, 0, 0)
+    s_top = md([p8, p7, p6, p5], 0, diff_margin, 0)
+    s_fwd = md([p4, p3, p7, p8], 0, 0, diff_margin)
+    s_bck = md([p1, p5, p6, p2], 0, 0, -diff_margin)
+    s_left = md([p1, p4, p8, p5], -diff_margin, 0, 0)
+    s_right = md([p2, p6, p7, p3], diff_margin, 0, 0)
 
-    return [s_btm]#, s_top, s_fwd, s_bck, s_left, s_right]
+    return [s_btm, s_top, s_fwd, s_bck, s_left, s_right]
 
 
 def md(ps, x, y, z):

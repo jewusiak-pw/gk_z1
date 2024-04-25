@@ -41,10 +41,16 @@ b4 = tx.gen_box(100, 0, 500, 50, 120, 150, box_borders_untouch)
 
 polygons = []
 polygons_untouching = []
-polygons_untouching += tx.gen_box(-50, 25, 150, 150, 10, 150, True)
-polygons_untouching += tx.gen_box(-50, 0, 100, 150, 10, 150, True)
+# polygons_untouching += tx.gen_box(-50, 25, 150, 150, 10, 150, True)
+# polygons_untouching += tx.gen_box(-50, 0, 100, 150, 10, 150, True)
 # polygons += tx.gen_box(100, 0, d1, 50, 120, 150, False)
 # polygons += tx.gen_box(-150, 0, d1, 50, 120, 150, False)
+
+for d1 in range(250, 501, 250):
+    polygons_untouching += tx.gen_box(100, 0, d1, 50, 120, 150, True)
+    polygons_untouching += tx.gen_box(-150, 0, d1, 50, 120, 150, True)
+    polygons += tx.gen_box(100, 0, d1, 50, 120, 150, False)
+    polygons += tx.gen_box(-150, 0, d1, 50, 120, 150, False)
 
 d = 1000
 d_orig = 1000
@@ -56,7 +62,7 @@ tx.translate_xyz(polygons_untouching, 0, 60, 0)
 coords = [0,0,0,0,0,0]
 
 # polygons = tx.div_polygons(polygons, 2)
-polygons_untouching = tx.div_polygons(polygons_untouching, 3)
+polygons_untouching = tx.div_polygons(polygons_untouching, 2)
 
 polygons_backup = tx.deep_copy(polygons)
 polygons_unt_backup = tx.deep_copy(polygons_untouching)
@@ -175,7 +181,7 @@ while True:
 
     # draw polygons
     for polygon in proj_polygons:
-        if sum([(1 if point['visibility'] == True else 0) for point in polygon]) == len(polygon):
+        if sum([(1 if point['visibility'] == True else 0) for point in polygon]) == len(polygon) or True:
             if walls_enabled:
                 pygame.draw.polygon(screen, "white", [tx.to_pg_xyz(point['point'][:2]) for point in polygon], 0)
             pygame.draw.polygon(screen, "black", [tx.to_pg_xyz(point['point'][:2]) for point in polygon], 2)
