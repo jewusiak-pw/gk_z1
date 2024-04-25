@@ -35,7 +35,7 @@ def visiblity(polygons):
 
             visible = zp > 0
 
-            outp2.append({"point": polygon[j], "visibility": visible, 'hidden' : False})
+            outp2.append({"point": polygon[j], "visibility": visible, 'hidden': False})
         outp.append(outp2)
     return outp
 
@@ -136,13 +136,13 @@ def gen_box(x, y, z, x_l, y_l, z_l, box_borders_untouch):
     p8 = [x, y + y_l, z + z_l, 1]
 
     s_btm = md([p1, p2, p3, p4], 0, -diff_margin, 0)
-    s_top = md([p8, p7, p6, p5], 0, diff_margin, 0)
-    s_fwd = md([p4, p3, p7, p8], 0, 0, diff_margin)
-    s_bck = md([p1, p5, p6, p2], 0, 0, -diff_margin)
-    s_left = md([p1, p4, p8, p5], -diff_margin, 0, 0)
-    s_right = md([p2, p6, p7, p3], diff_margin, 0, 0)
+    # s_top = md([p8, p7, p6, p5], 0, diff_margin, 0)
+    # s_fwd = md([p4, p3, p7, p8], 0, 0, diff_margin)
+    # s_bck = md([p1, p5, p6, p2], 0, 0, -diff_margin)
+    # s_left = md([p1, p4, p8, p5], -diff_margin, 0, 0)
+    # s_right = md([p2, p6, p7, p3], diff_margin, 0, 0)
 
-    return [s_btm, s_top, s_fwd, s_bck, s_left, s_right]
+    return [s_btm]#, s_top, s_fwd, s_bck, s_left, s_right]
 
 
 def md(ps, x, y, z):
@@ -233,13 +233,15 @@ def calc_dist(polygon):
         # use dist to poly
         return poly_border_point_dist(cam_xyz, poly_pts)
 
+
 def calc_dist_middlepoints(polygon):
     [x2, y2, z2] = cam_xyz = [0, 0, 0]
     x = sum([point['point'][0] for point in polygon]) / len(polygon)
     y = sum([point['point'][1] for point in polygon]) / len(polygon)
     z = sum([point['point'][2] for point in polygon]) / len(polygon)
-    dist = math.sqrt((x2-x)**2 + (y2-y)**2 + (z2-z)**2)
+    dist = math.sqrt((x2 - x) ** 2 + (y2 - y) ** 2 + (z2 - z) ** 2)
     return dist
+
 
 def deep_copy(polygons):
     return [polygon.copy() for polygon in polygons]
@@ -278,10 +280,60 @@ def hide_hidden(proj_polygons, observer_xyz):
         plane_pts = [p['point'] for p in polygon]
         v1 = (plane_pts[0][0] - plane_pts[1][0], plane_pts[0][1] - plane_pts[1][1], plane_pts[0][2] - plane_pts[1][2])
         v2 = (plane_pts[2][0] - plane_pts[1][0], plane_pts[2][1] - plane_pts[1][1], plane_pts[2][2] - plane_pts[1][2])
-        vv = np.cross(v2,v1).tolist()
-        obs_v = (observer_xyz[0] - plane_pts[1][0], observer_xyz[1] - plane_pts[1][1], observer_xyz[2] - plane_pts[1][2])
-        val= np.dot(vv, obs_v)
+        vv = np.cross(v2, v1).tolist()
+        obs_v = (
+            observer_xyz[0] - plane_pts[1][0], observer_xyz[1] - plane_pts[1][1], observer_xyz[2] - plane_pts[1][2])
+        val = np.dot(vv, obs_v)
         # visible
         if val > 0:
             outp.append(polygon)
     return outp
+
+
+def mid_plane(points):
+    xavg = sum([p[0] for p in points]) / len(points)
+    yavg = sum([p[1] for p in points]) / len(points)
+    zavg = sum([p[2] for p in points]) / len(points)
+    return [xavg, yavg, zavg, 1]
+
+def divide_polygon(polys, n):
+    if n == 0:
+        return polys
+    p = divide_list_polygons(polys)
+    return divide_polygon(p, n-1)
+        
+def divide_list_polygons(polygons):
+    pout= []
+    for polygon in polygons:
+        pout+=divide_polygon_once(polygon)
+    return pout
+
+def divide_polygon_once(poly):
+    # points = [p['point'] for p in poly]
+    points = poly
+    polys = []
+
+    midp = mid_plane(points)
+    
+    pointn = len(points)
+
+    for i in range(len(points)):
+        pout=[]
+        # pout.append({'hidden': False, 'point': points[i], 'visibility': True})
+        # pout.append({'hidden': False, 'point': points[(i+1)%pointn], 'visibility': True})
+        # pout.append({'hidden': False, 'point': points[(i+2)%pointn], 'visibility': True})
+        # pout.append({'hidden': False, 'point': midp, 'visibility': True})
+        pout.append(points[i])
+        pout.append(points[(i+1)%pointn])
+        # pout.append(points[(i+2)%pointn])
+        pout.append(midp)
+        polys.append(pout)
+        
+
+    return polys
+
+
+def div_polygons(proj_polygons, n):
+    out_polygons = []
+    out_polygons = divide_polygon(proj_polygons, n)
+    return out_polygons

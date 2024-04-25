@@ -55,6 +55,9 @@ tx.translate_xyz(polygons_untouching, 0, 60, 0)
 
 coords = [0,0,0,0,0,0]
 
+polygons = tx.div_polygons(polygons, 2)
+polygons_untouching = tx.div_polygons(polygons_untouching, 2)
+
 polygons_backup = tx.deep_copy(polygons)
 polygons_unt_backup = tx.deep_copy(polygons_untouching)
 if box_borders_untouch:
@@ -155,11 +158,11 @@ while True:
     proj_polygons = tx.visiblity(polygons)
 
     # nie projektujemy ścian niewidocznych (tylnich)
-    proj_polygons = tx.hide_hidden(proj_polygons, [0, 0, 0])
+    # proj_polygons = tx.hide_hidden(proj_polygons, [0, 0, 0])
 
     # sortowanie po odległości od obserwatora
-    proj_polygons.sort(key=tx.calc_dist, reverse=True)
-    # proj_polygons.sort(key=tx.calc_dist_middlepoints, reverse=True)
+    # proj_polygons.sort(key=tx.calc_dist, reverse=True)
+    proj_polygons.sort(key=tx.calc_dist_middlepoints, reverse=True)
 
     # projekcja
     proj_polygons = tx.project_points2(proj_polygons, d)
@@ -172,7 +175,7 @@ while True:
 
     # draw polygons
     for polygon in proj_polygons:
-        if sum([(1 if point['visibility'] == True else 0) for point in polygon]) == 4:
+        if sum([(1 if point['visibility'] == True else 0) for point in polygon]) == len(polygon):
             if walls_enabled:
                 pygame.draw.polygon(screen, "white", [tx.to_pg_xyz(point['point'][:2]) for point in polygon], 0)
             pygame.draw.polygon(screen, "black", [tx.to_pg_xyz(point['point'][:2]) for point in polygon], 2)
